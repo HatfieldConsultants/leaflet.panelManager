@@ -16,6 +16,10 @@
     <script>
         L.PanelManager.addTo(map);
         map.PanelManager.getVersion();
-;    </script>
+        map.PanelManager.newPanel().addTo(map);
+        map.PanelManager.newPanel().addTo(map);
+        map.PanelManager.newPanel().addTo(map);
+        console.log(map.PanelManager.list);
+	</script>
 </body>
 </html>

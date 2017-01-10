@@ -26,6 +26,17 @@
 
         addTo: function(map) {
             map.PanelManager = PanelManager;
+            map.PanelManager.list = [];
+        },
+
+        newPanel: function(options) {
+            var panel = {};
+
+            panel.addTo = function(map) {
+                map.PanelManager.list.push(panel);
+            }
+
+            return panel;
         }
     };
     // return your plugin when you are done
