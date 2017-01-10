@@ -1,0 +1,98 @@
+.panelmanager-panel{
+    position: absolute;
+    -webkit-box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    box-sizing: border-box;
+    z-index: 2100;
+    padding: 20px;
+    background-color: white;
+    border-radius: 5px;
+    box-shadow: 0 1px 7px rgba(0, 0, 0, 0.65);
+}
+
+.panelmanager-visible-right {
+    height:90%;
+    width: 20%;
+    right: 0%;
+    top: 5%;
+    bottom: 10%;
+    transition: right 0.5s;
+}
+.panelmanager-invisible-right {
+    height:90%;
+    width: 20%;
+    right: -15%;
+    top: 5%;
+    bottom: 10%;
+    transition: right 0.5s;
+}
+
+.panelmanager-visible-left {
+    height:90%;
+    width: 20%;
+    left: 0%;
+    top: 5%;
+    bottom: 10%;
+    transition: left 0.5s;
+}
+.panelmanager-invisible-left {
+    height:90%;
+    width: 20%;
+    left: -15%;
+    top: 5%;
+    bottom: 10%;
+    transition: left 0.5s;    
+}
+
+.panelmanager-visible-top {
+    height:35%;
+    width: 60%;
+	right: 20%;
+	left: 20%;
+    top: 0%;
+    transition: top 0.5s;
+}
+.panelmanager-invisible-top {
+    height:35%;
+    width: 60%;
+	right: 20%;
+	left: 20%;    
+    top: -30%;
+    transition: top 0.5s;
+}
+
+.panelmanager-visible-bottom {
+    height:35%;
+    width: 60%;
+	right: 20%;
+	left: 20%;
+    bottom: 0%;
+    transition: bottom 0.5s;
+}
+.panelmanager-invisible-bottom {
+    height:35%;
+    width: 60%;
+	right: 20%;
+	left: 20%;    
+    bottom: -30%;
+    transition: bottom 0.5s;
+}
+
+.panelmanager-panel .close {
+    color: black;
+    font-size: 3em;
+}
+.panelmanager-close-right {
+	float: left;
+}
+.panelmanager-close-left {
+	float: right; 
+}
+.panelmanager-close-top {
+	position: absolute; 
+	bottom: 0;
+}
+.panelmanager-close-bottom {
+	position: absolute; 
+	top: 0;
+}

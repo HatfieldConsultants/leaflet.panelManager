@@ -4,8 +4,16 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+	"lint": "jshint --reporter=node_modules/jshint-stylish index.js"
   },
   "author": "Nima Boscarino",
-  "license": "MPL-2.0"
+  "license": "MPL-2.0",
+    "devDependencies": {
+    "jshint": "^2.9.4",
+    "jshint-stylish": "^2.2.1"
+  },
+  "jshintConfig": {
+    "curly": true
+  }
 }
