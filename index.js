@@ -76,6 +76,7 @@
                 }
                 
                 var panelContent = L.DomUtil.create('div', 'panelmanager-panel-content');
+                panel.panelContent = panelContent;
                 panel.append(panelContent);
 
 
@@ -92,11 +93,13 @@
                             L.DomUtil.addClass(panel, "panelmanager-min-" + options.position);
                             close.innerHTML = '+'; // temporary
                             L.DomUtil.addClass(panel.titleDiv, "invisible");
+                            L.DomUtil.addClass(panel.panelContent, "invisible");
                         } else {
                             L.DomUtil.removeClass(panel, "panelmanager-min-" + options.position);
                             L.DomUtil.addClass(panel, "panelmanager-max-" + options.position);
                             close.innerHTML = '&times;'; // temporary
                             L.DomUtil.removeClass(panel.titleDiv, "invisible");                    
+                            L.DomUtil.removeClass(panel.panelContent, "invisible");                    
                         }
                         panel.visible = !panel.visible;
                     };
@@ -106,6 +109,7 @@
                         panel.visible = false;
 
                         L.DomUtil.addClass(panel.titleDiv, "invisible");
+                        L.DomUtil.addClass(panel.panelContent, "invisible");
                         L.DomUtil.removeClass(panel.button, "invisible");
 
                     };
@@ -115,6 +119,7 @@
                         panel.visible = true;
 
                         L.DomUtil.removeClass(panel.titleDiv, "invisible");
+                        L.DomUtil.removeClass(panel.panelContent, "invisible");
                         L.DomUtil.addClass(panel.button, "invisible" );                        
                     };
 
