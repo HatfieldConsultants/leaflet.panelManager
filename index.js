@@ -31,6 +31,7 @@
 
         newPanel: function(options) {
             /* options ----
+                - title
                 - position: top/bottom/left/right // for default desktop view
                 - responsive: {
                     rules for repositioning with different window sizes
@@ -56,9 +57,6 @@
             var self = this;
             var panel = L.DomUtil.create('div', 'panelmanager-panel');
             L.DomUtil.addClass(panel, "panelmanager-" + options.position);
-            L.DomUtil.addClass(panel, "panelmanager-visible-" + options.position);
-
-            panel.visible = true;
 
             panel.addTo = function(map) {
                 map.PanelManager.list.push(panel);
@@ -73,19 +71,81 @@
     
                     var togglePanel = function(e){
                         if (panel.visible) {
-                            L.DomUtil.removeClass(panel, "panelmanager-visible-" + options.position);
-                            L.DomUtil.addClass(panel, "panelmanager-invisible-" + options.position);
+                            L.DomUtil.removeClass(panel, "panelmanager-max-" + options.position);
+                            L.DomUtil.addClass(panel, "panelmanager-min-" + options.position);
                             close.innerHTML = '+'; // temporary
                         } else {
-                            L.DomUtil.removeClass(panel, "panelmanager-invisible-" + options.position);
-                            L.DomUtil.addClass(panel, "panelmanager-visible-" + options.position);
+                            L.DomUtil.removeClass(panel, "panelmanager-min-" + options.position);
+                            L.DomUtil.addClass(panel, "panelmanager-max-" + options.position);
                             close.innerHTML = '&times;'; // temporary
                         }
                         panel.visible = !panel.visible;
                     };
+                    var hidePanel = function(e){
+                        L.DomUtil.removeClass(panel, "panelmanager-max-" + options.position);
+                        L.DomUtil.addClass(panel, "panelmanager-invisible-" + options.position);
+                        panel.visible = false;
 
-                    L.DomEvent.on(close, 'click',
-                        togglePanel, self);
+                        L.DomUtil.removeClass(panel.button, "panelmanager-button-invisible");
+
+                    };
+                    var showPanel = function(e){
+                        L.DomUtil.removeClass(panel, "panelmanager-invisible-" + options.position);
+                        L.DomUtil.addClass(panel, "panelmanager-max-" + options.position);
+                        panel.visible = true;
+
+                        L.DomUtil.addClass(panel.button, "panelmanager-button-invisible" );                        
+                    };
+
+                    if (options.toggleHide == "button") {
+                        panel.visible = false;
+                        L.DomUtil.addClass(panel, "panelmanager-invisible-" + options.position);
+
+                        //add a button to show panel
+                        panel.button = L.DomUtil.create('div', 'leaflet-control');
+                        panel.button.style.backgroundColor = 'white';
+                        panel.button.style.width = '40px';
+                        panel.button.style.height = '40px';
+                        panel.button.style.cursor = 'pointer';
+
+                        L.DomEvent.on(panel.button, 'click',
+                            showPanel, self);
+
+                        L.DomEvent.on(close, 'click',
+                            hidePanel, self);
+
+                        var customControl = L.Control.extend({
+                            options: {
+                                position: 'topleft'
+                                //control position - allowed: 'topleft', 'topright', 'bottomleft', 'bottomright'
+                            },
+
+                            onAdd: function (map) {
+                                 //add a button to show panel
+                                panel.button = L.DomUtil.create('div', 'leaflet-bar panelmanager-button');
+                                panel.button.style.backgroundColor = 'white';
+                                panel.button.style.width = '40px';
+                                panel.button.style.height = '40px';
+                                panel.button.style.cursor = 'pointer';
+
+                                L.DomEvent.on(panel.button, 'click',
+                                    showPanel, self);
+
+                                L.DomEvent.on(close, 'click',
+                                    hidePanel, self);
+
+                                return panel.button;
+                            },
+                        });
+                        map.addControl(new customControl());
+
+                    } else {
+                        L.DomUtil.addClass(panel, "panelmanager-max-" + options.position);
+
+                        L.DomEvent.on(close, 'click',
+                            togglePanel, self);                        
+                    }
+
                 }
                 self.flexRender(options.position);
             };

@@ -10,7 +10,7 @@
     box-shadow: 0 1px 7px rgba(0, 0, 0, 0.65);
 }
 
-.panelmanager-visible-right {
+.panelmanager-max-right {
     height:90%;
     width: 20%;
     right: 0%;
@@ -18,7 +18,7 @@
     bottom: 10%;
     transition: right 0.5s;
 }
-.panelmanager-invisible-right {
+.panelmanager-min-right {
     height:90%;
     width: 20%;
     right: -15%;
@@ -26,8 +26,16 @@
     bottom: 10%;
     transition: right 0.5s;
 }
+.panelmanager-invisible-right {
+    height:90%;
+    width: 20%;
+    right: -20%;
+    top: 5%;
+    bottom: 10%;
+    transition: right 0.5s;
+}
 
-.panelmanager-visible-left {
+.panelmanager-max-left {
     height:90%;
     width: 20%;
     left: 0%;
@@ -35,7 +43,7 @@
     bottom: 10%;
     transition: left 0.5s;
 }
-.panelmanager-invisible-left {
+.panelmanager-min-left {
     height:90%;
     width: 20%;
     left: -15%;
@@ -43,8 +51,16 @@
     bottom: 10%;
     transition: left 0.5s;    
 }
+.panelmanager-invisible-left {
+    height:90%;
+    width: 20%;
+    left: -20%;
+    top: 5%;
+    bottom: 10%;
+    transition: right 0.5s;
+}
 
-.panelmanager-visible-top {
+.panelmanager-max-top {
     height:35%;
     width: 60%;
 	right: 20%;
@@ -52,7 +68,7 @@
     top: 0%;
     transition: top 0.5s;
 }
-.panelmanager-invisible-top {
+.panelmanager-min-top {
     height:35%;
     width: 60%;
 	right: 20%;
@@ -60,8 +76,16 @@
     top: -30%;
     transition: top 0.5s;
 }
+.panelmanager-invisible-top {
+    height:35%;
+    width: 60%;
+	right: 20%;
+	left: 20%;
+    top: -35%;
+    transition: top 0.5s;
+}
 
-.panelmanager-visible-bottom {
+.panelmanager-max-bottom {
     height:35%;
     width: 60%;
 	right: 20%;
@@ -69,12 +93,20 @@
     bottom: 0%;
     transition: bottom 0.5s;
 }
-.panelmanager-invisible-bottom {
+.panelmanager-min-bottom {
     height:35%;
     width: 60%;
 	right: 20%;
 	left: 20%;    
     bottom: -30%;
+    transition: bottom 0.5s;
+}
+.panelmanager-invisible-bottom {
+    height:35%;
+    width: 60%;
+	right: 20%;
+	left: 20%;    
+    bottom: -35%;
     transition: bottom 0.5s;
 }
 
@@ -95,4 +127,13 @@
 .panelmanager-close-bottom {
 	position: absolute; 
 	top: 0;
+}
+
+.panelmanager-button {
+}
+.panelmanager-button:hover {
+	cursor: pointer;
+}
+.panelmanager-button-invisible {
+	display: none;
 }
