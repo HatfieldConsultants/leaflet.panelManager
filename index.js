@@ -64,8 +64,25 @@
                 controlContainer.insertBefore(panel, controlContainer.firstChild);
                 panel.visible = true;
 
+
+                if (options.title) {
+                    var titleDiv = L.DomUtil.create('div', 'panelmanager-panel-titlediv');
+                    panel.append(titleDiv);
+                    var title = L.DomUtil.create('h2', 'panelmanager-panel-title');
+                    title.innerHTML = options.title;
+                    titleDiv.insertBefore(title, titleDiv.firstChild);
+                    panel.title = title;
+                    panel.titleDiv = titleDiv;
+                }
+                
+                var panelContent = L.DomUtil.create('div', 'panelmanager-panel-content');
+                panel.append(panelContent);
+
+
                 if (options.toggleHide) {
-                    var close = L.DomUtil.create('a', 'close', panel);
+                    var close = L.DomUtil.create('a', 'close');
+                    panel.insertBefore(close, panel.firstChild);
+
                     L.DomUtil.addClass(close, "panelmanager-close-" + options.position);
                     close.innerHTML = '&times;';
     
@@ -74,10 +91,12 @@
                             L.DomUtil.removeClass(panel, "panelmanager-max-" + options.position);
                             L.DomUtil.addClass(panel, "panelmanager-min-" + options.position);
                             close.innerHTML = '+'; // temporary
+                            L.DomUtil.addClass(panel.titleDiv, "invisible");
                         } else {
                             L.DomUtil.removeClass(panel, "panelmanager-min-" + options.position);
                             L.DomUtil.addClass(panel, "panelmanager-max-" + options.position);
                             close.innerHTML = '&times;'; // temporary
+                            L.DomUtil.removeClass(panel.titleDiv, "invisible");                    
                         }
                         panel.visible = !panel.visible;
                     };
@@ -86,7 +105,8 @@
                         L.DomUtil.addClass(panel, "panelmanager-invisible-" + options.position);
                         panel.visible = false;
 
-                        L.DomUtil.removeClass(panel.button, "panelmanager-button-invisible");
+                        L.DomUtil.addClass(panel.titleDiv, "invisible");
+                        L.DomUtil.removeClass(panel.button, "invisible");
 
                     };
                     var showPanel = function(e){
@@ -94,7 +114,8 @@
                         L.DomUtil.addClass(panel, "panelmanager-max-" + options.position);
                         panel.visible = true;
 
-                        L.DomUtil.addClass(panel.button, "panelmanager-button-invisible" );                        
+                        L.DomUtil.removeClass(panel.titleDiv, "invisible");
+                        L.DomUtil.addClass(panel.button, "invisible" );                        
                     };
 
                     if (options.toggleHide == "button") {

@@ -137,3 +137,11 @@
 .panelmanager-button-invisible {
 	display: none;
 }
+ .panelmanager-panel-titlediv {
+ 	text-align: center;
+ }
+
+/* general invisibility */
+ .invisible {
+ 	display: none;
+ }
