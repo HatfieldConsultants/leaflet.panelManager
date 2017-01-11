@@ -67,7 +67,7 @@
 
                 if (options.title) {
                     var titleDiv = L.DomUtil.create('div', 'panelmanager-panel-titlediv');
-                    panel.append(titleDiv);
+                    panel.appendChild(titleDiv);
                     var title = L.DomUtil.create('h2', 'panelmanager-panel-title');
                     title.innerHTML = options.title;
                     titleDiv.insertBefore(title, titleDiv.firstChild);
@@ -77,7 +77,7 @@
                 
                 var panelContent = L.DomUtil.create('div', 'panelmanager-panel-content');
                 panel.panelContent = panelContent;
-                panel.append(panelContent);
+                panel.appendChild(panelContent);
 
 
                 if (options.toggleHide) {
