@@ -1229,23 +1229,44 @@ if (!Array.prototype.findIndex) {
                 buttons: [
                     {
                         name: "red pen",
-                        icon: "assets/red-pen.png"
+                        icon: "assets/red-pen.png",
+                        callback: function() {
+                            self.root.Tools.setCurrentTool('pen', {
+                                colour: 'red'
+                            });
+                        }
                     },
                     {
                         name: "black pen",
-                        icon: "assets/black-pen.png"
+                        icon: "assets/black-pen.png",
+                        callback: function() {
+                            self.root.Tools.setCurrentTool('pen', {
+                                colour: 'black'
+                            });
+                        }                        
                     },
                     {
                         name: "yellow pen",
-                        icon: "assets/yellow-pen.png"
+                        icon: "assets/yellow-pen.png",
+                        callback: function() {
+                            self.root.Tools.setCurrentTool('pen', {
+                                colour: 'yellow'
+                            });
+                        }                        
                     },
                     {
                         name: "eraser",
-                        icon: "assets/eraser.png"
+                        icon: "assets/eraser.png",
+                        callback: function() {
+                            self.root.Tools.setCurrentTool('eraser');
+                        }
                     },
                     {
                         name: "text",
-                        icon: "assets/text.png"
+                        icon: "assets/text.png",
+                        callback: function() {
+                            self.root.Tools.setCurrentTool('text');
+                        }
                     }
                 ]
             }

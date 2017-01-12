@@ -231,6 +231,10 @@
                     specPanel.buttons.forEach(function(specButton) {
                         var button = L.DomUtil.create('button', 'panelmanager-panel-button');
                         button.style.background = "url(" + specButton.icon + ") no-repeat"
+                        if (specButton.callback) {
+                            L.DomEvent.on(button, 'click',
+                                specButton.callback, self);                        
+                        }
                         panel.panelContent.append(button);
                     });
                 } else if (specPanel.type == "document-list") {
