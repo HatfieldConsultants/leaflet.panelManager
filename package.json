@@ -2,7 +2,7 @@
   "name": "leaflet.panel-manager",
   "version": "0.1.0",
   "description": "",
-  "main": "index.js",
+  "main": "panelManager.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
 	"lint": "jshint --reporter=node_modules/jshint-stylish index.js"

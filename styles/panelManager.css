@@ -143,5 +143,15 @@
 
 /* general invisibility */
  .invisible {
- 	display: none;
+ 	display: none! important;
  }
+
+.panelmanager-panel-content {
+	display: inline-block;
+}
+
+/* buttons inside of a panel */
+.panelmanager-panel-button {
+	height: 4em;
+	width: 4em;
+}

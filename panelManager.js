@@ -26,6 +26,7 @@
 
         addTo: function(map) {
             map.PanelManager = PanelManager;
+            this.map = map;
             map.PanelManager.list = [];
         },
 
@@ -65,14 +66,15 @@
                 panel.visible = true;
 
 
+                var titleDiv = L.DomUtil.create('div', 'panelmanager-panel-titlediv');
+                panel.appendChild(titleDiv);
+                var title = L.DomUtil.create('h2', 'panelmanager-panel-title');
+                titleDiv.insertBefore(title, titleDiv.firstChild);
+                panel.title = title;
+                panel.titleDiv = titleDiv;
+
                 if (options.title) {
-                    var titleDiv = L.DomUtil.create('div', 'panelmanager-panel-titlediv');
-                    panel.appendChild(titleDiv);
-                    var title = L.DomUtil.create('h2', 'panelmanager-panel-title');
                     title.innerHTML = options.title;
-                    titleDiv.insertBefore(title, titleDiv.firstChild);
-                    panel.title = title;
-                    panel.titleDiv = titleDiv;
                 }
                 
                 var panelContent = L.DomUtil.create('div', 'panelmanager-panel-content');
@@ -133,13 +135,6 @@
                         panel.button.style.width = '40px';
                         panel.button.style.height = '40px';
                         panel.button.style.cursor = 'pointer';
-
-                        L.DomEvent.on(panel.button, 'click',
-                            showPanel, self);
-
-                        L.DomEvent.on(close, 'click',
-                            hidePanel, self);
-
                         var customControl = L.Control.extend({
                             options: {
                                 position: 'topleft'
@@ -159,6 +154,16 @@
 
                                 L.DomEvent.on(close, 'click',
                                     hidePanel, self);
+
+                                // optional callback that can be triggered when opening a panel with button-toggle
+                                if (options.toggleOnCallback) {
+                                    L.DomEvent.on(panel.button, 'click',
+                                        options.toggleOnCallback, self);
+                                }
+                                if (options.toggleOffCallback) {
+                                    L.DomEvent.on(close, 'click',
+                                        options.toggleOffCallback, self);
+                                }
 
                                 return panel.button;
                             },
@@ -205,6 +210,41 @@
                     panel.style.height = (defaultDimension / panels.length) + "%";
                     panel.style.top = ((parseFloat(panel.style.height) * index) + (50 - defaultDimension/2)) + "%";
                 }
+            });
+        },
+
+        loadPlugin: function(plugin) {
+            var self = this;
+            var spec = plugin.GUI.loadPanels();
+
+            spec.panels.forEach(function(specPanel) {
+                var panel = self.newPanel({
+                    position: specPanel.position,
+                    toggleHide: specPanel.toggleHide,
+                    toggleOnCallback: specPanel.toggleOnCallback,
+                    toggleOffCallback: specPanel.toggleOffCallback,
+                    title: specPanel.title,
+                });
+                panel.addTo(map);
+
+                if (specPanel.type == "button-list") {
+                    specPanel.buttons.forEach(function(specButton) {
+                        var button = L.DomUtil.create('button', 'panelmanager-panel-button');
+                        panel.panelContent.insertBefore(button, panel.panelContent.firstChild);
+                    });
+                } else if (specPanel.type == "document-list") {
+                    var documentList = L.DomUtil.create('ul', 'panelmanager-panel-document-list');
+                    panel.panelContent.insertBefore(documentList, panel.panelContent.firstChild);
+
+                    if (specPanel.documents) {
+                        specPanel.documents.forEach(function(specDocument) {
+                            var documentItem = L.DomUtil.create('li', 'panelmanager-panel-document-li');
+                            documentList.appendChild(documentItem);
+                        });                        
+                    }
+                }
+
+
             });
         }
     };
