@@ -230,7 +230,8 @@
                 if (specPanel.type == "button-list") {
                     specPanel.buttons.forEach(function(specButton) {
                         var button = L.DomUtil.create('button', 'panelmanager-panel-button');
-                        panel.panelContent.insertBefore(button, panel.panelContent.firstChild);
+                        button.style.background = "url(" + specButton.icon + ") no-repeat"
+                        panel.panelContent.append(button);
                     });
                 } else if (specPanel.type == "document-list") {
                     var documentList = L.DomUtil.create('ul', 'panelmanager-panel-document-list');
