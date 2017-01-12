@@ -143,7 +143,7 @@ if (!Array.prototype.findIndex) {
 
             // prompt for title saving...
             if (!comment.saveState) {
-                comment.name = prompt("Please name your note", "Note") || "Note";
+                comment.name = prompt("Please name your note", "Note") || "Untitled Note";
             }
 
             if (options && options.textSave) {
@@ -269,6 +269,50 @@ if (!Array.prototype.findIndex) {
 
             return comment;
         },
+
+        editComment: function (comment, image, options) {
+            var self = this;
+            // fly to comment
+            //map.flyToBounds(image._bounds, {animate: false});
+
+            // trigger drawing mode
+            if (options) {
+                self.startDrawingMode(comment, options);
+            } else {
+                self.startDrawingMode(comment);
+            }
+            self.Comments.editingComment = comment;
+            var canvas = self.drawingCanvas._container;
+            var context = canvas.getContext('2d');
+            var canvasTransformArray;
+
+            canvasTransformArray = canvas.style.transform.split(/,|\(|\)|px| /);
+
+            if (image) {
+                var imageObj = new Image();
+
+                var newWidth = image._image.width * self.ownMap.getZoomScale(self.ownMap.getZoom(), comment.zoomLevel);
+                var newHeight = image._image.height * self.ownMap.getZoomScale(self.ownMap.getZoom(), comment.zoomLevel);
+
+                imageObj.onload = function () {
+                    context.drawImage(imageObj, image._image._leaflet_pos.x, image._image._leaflet_pos.y, newWidth, newHeight);
+                };
+
+                imageObj.src = image._image.src;
+            }
+
+            try {
+                var event = new Event('comment-edit-start');
+            }
+            catch(err) {
+                var event = document.createEvent("CustomEvent");
+                event.initCustomEvent("comment-edit-start", true, false, { detail: {} });
+            }     
+            // Dispatch the event.
+            self.ownMap._container.dispatchEvent(event);
+
+            return comment;
+        },        
 
     };
 
@@ -430,42 +474,6 @@ if (!Array.prototype.findIndex) {
             var br = L.DomUtil.create('br', '', drawingView);
 
             var toolbox = L.DomUtil.create('div', 'toolbox', drawingView);
-
-            var redPenSelectButton = L.DomUtil.create('img', 'tool', toolbox);
-            redPenSelectButton.src = 'assets/red-pen.png';
-            redPenSelectButton.onclick = function () {
-                self.root.Tools.setCurrentTool('pen', {
-                    colour: 'red'
-                });
-            };
-
-            var yellowPenSelectButton = L.DomUtil.create('img', 'tool', toolbox);
-            yellowPenSelectButton.src = 'assets/yellow-pen.png';
-            yellowPenSelectButton.onclick = function () {
-                self.root.Tools.setCurrentTool('pen', {
-                    colour: 'yellow'
-                });
-            };
-
-            var blackPenSelectButton = L.DomUtil.create('img', 'tool', toolbox);
-            blackPenSelectButton.src = 'assets/black-pen.png';
-            blackPenSelectButton.onclick = function () {
-                self.root.Tools.setCurrentTool('pen', {
-                    colour: 'black'
-                });
-            };
-
-            var eraserSelectButton = L.DomUtil.create('img', 'tool', toolbox);
-            eraserSelectButton.src = 'assets/eraser.png';
-            eraserSelectButton.onclick = function () {
-                self.root.Tools.setCurrentTool('eraser');
-            };
-
-            var textSelectButton = L.DomUtil.create('img', 'tool', toolbox);
-            textSelectButton.src = 'assets/text.png';
-            textSelectButton.onclick = function () {
-                self.root.Tools.setCurrentTool('text');
-            };
         },
 
         startNewComment: function () {
@@ -478,56 +486,6 @@ if (!Array.prototype.findIndex) {
             self.root.startDrawingMode(newComment);
 
             return newComment;
-        },
-
-        editComment: function (comment, image, options) {
-            var self = this;
-            // fly to comment
-            //map.flyToBounds(image._bounds, {animate: false});
-
-            // trigger drawing mode
-            if (options) {
-                self.root.startDrawingMode(comment, options);
-            } else {
-                self.root.startDrawingMode(comment);
-            }
-            self.root.Comments.editingComment = comment;
-            var canvas = self.root.drawingCanvas._container;
-            var context = canvas.getContext('2d');
-            var canvasTransformArray;
-
-            // for phantomJS
-            if (self.root.PHANTOMTEST) {
-                canvasTransformArray = [0, 0];
-            } else {
-                canvasTransformArray = canvas.style.transform.split(/,|\(|\)|px| /);
-            }
-
-
-            if (image) {
-                var imageObj = new Image();
-
-                var newWidth = image._image.width * self.root.ownMap.getZoomScale(self.root.ownMap.getZoom(), comment.zoomLevel);
-                var newHeight = image._image.height * self.root.ownMap.getZoomScale(self.root.ownMap.getZoom(), comment.zoomLevel);
-
-                imageObj.onload = function () {
-                    context.drawImage(imageObj, image._image._leaflet_pos.x, image._image._leaflet_pos.y, newWidth, newHeight);
-                };
-
-                imageObj.src = image._image.src;
-            }
-
-            try {
-                var event = new Event('comment-edit-start');
-            }
-            catch(err) {
-                var event = document.createEvent("CustomEvent");
-                event.initCustomEvent("comment-edit-start", true, false, { detail: {} });
-            }     
-            // Dispatch the event.
-            self.root.ownMap._container.dispatchEvent(event);
-
-            return comment;
         },
 
         cancelDrawing: function (commentId) {
@@ -556,6 +514,7 @@ if (!Array.prototype.findIndex) {
         newComment: function (loadedComment, index) {
             var self = this;
             var comment = L.layerGroup();
+            comment.name = "Untitled Note";
             comment.textLayerGroup = L.layerGroup();
 
             if (loadedComment) {
@@ -722,7 +681,7 @@ if (!Array.prototype.findIndex) {
                     self.root.Tools.on();
                     self.root.Comments.editingComment.addTo(self.root.ownMap);
                     // save everything (with options)
-                    self.root.ControlBar.saveDrawing(self.root.Comments.editingComment, { textSave: true });
+                    self.root.saveDrawing(self.root.Comments.editingComment, { textSave: true });
                 };
                 canvas.addEventListener('click', clickCanvasEndText, false);
             }
@@ -984,7 +943,7 @@ if (!Array.prototype.findIndex) {
                         marker.addTo(comment.textLayerGroup);
                         marker.addTo(self.root.ownMap);
                         marker.layerType = 'textAreaMarker';
-                        self.root.ControlBar.saveDrawing(comment);
+                        self.root.saveDrawing(comment);
                         self.root.ownMap.setView(marker._latlng, map.getZoom(), { animate: false });
                         self.root.ownMap.panBy([200, 150], { animate: false });
 
@@ -997,7 +956,7 @@ if (!Array.prototype.findIndex) {
                             }
                         });
 
-                        self.root.ControlBar.editComment(comment, image, { addText: true, textAreaMarker: marker });
+                        self.root.editComment(comment, image, { addText: true, textAreaMarker: marker });
                         self.root.Tools.setCurrentTool('text', { listeners: false });
                         textBox = document.getElementById(id);
                         textBox.focus();
@@ -1118,7 +1077,7 @@ if (!Array.prototype.findIndex) {
                     if (self.root.Tools.currentTool == 'text') {
                         L.DomUtil.removeClass(newTextImageOverlay._image, 'text-hover-edit');
 
-                        self.root.ControlBar.saveDrawing(comment);
+                        self.root.saveDrawing(comment);
                         self.root.ownMap.setView(marker._latlng, marker.textZoomLevel, { animate: false });
                         self.root.ownMap.panBy([200, 150], { animate: false });
 
@@ -1160,17 +1119,34 @@ if (!Array.prototype.findIndex) {
         initializeListeners: function() {
             var self = this;
 
+            var fireUpdateCommentListViewEvent = function() {
+                try {
+                    var event = new Event('comment-list-refresh');
+                }
+                catch(err) {
+                    var event = document.createEvent("CustomEvent");
+                    event.initCustomEvent("comment-list-refresh", true, false, { detail: {} });
+                }     
+                // Dispatch the event.
+                window.dispatchEvent(event);
+
+            }
+
             self.root.ownMap._container.addEventListener('new-comment-created', function (e) {
                 console.log('new comment created');
+                fireUpdateCommentListViewEvent();
             }, false);
             self.root.ownMap._container.addEventListener('new-comment-saved', function (e) {
                 console.log('new comment saved');
+                fireUpdateCommentListViewEvent();                
             }, false);
             self.root.ownMap._container.addEventListener('comment-edit-start', function (e) {
                 console.log('started editing a comment');
+                fireUpdateCommentListViewEvent();                
             }, false);
             self.root.ownMap._container.addEventListener('comment-edit-end', function (e) {
                 console.log('finished editing a comment');
+                fireUpdateCommentListViewEvent();                
             }, false);
 
             // listen for events emitted by Network module
@@ -1278,6 +1254,8 @@ if (!Array.prototype.findIndex) {
                 position: "right",
                 title: "Comments",
                 toggleHide: true,
+                eventName: "comment-list-refresh",
+                documentSource: self.root.Comments.list,
                 documentActions: [
                     {
                         name: "Edit"

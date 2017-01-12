@@ -127,36 +127,6 @@
 	cursor: pointer;
 }
 
-.controlbar-close {
-	height: 40px;
-	width: 40px;
-	background-image: url('../assets/close.png');
-	background-size: 40px 40px;
-	padding: 0px;
-	margin: 0px;
-	border: 0 none;
-	background-color: transparent;
-}
-.controlbar-new {
-}
-
-.drawing-canvas-red-pen {
-    cursor:url(../assets/red-pen.png) 0 50, auto;
-}
-.drawing-canvas-yellow-pen {
-    cursor:url(../assets/yellow-pen.png) 0 50, auto;
-}
-.drawing-canvas-black-pen {
-    cursor:url(../assets/black-pen.png) 0 50, auto;
-}
-
-.drawing-canvas-eraser {
-    cursor:url(../assets/eraser.png) 15 30, auto;
-}
-
-.drawing-canvas-text {
-    cursor:url(../assets/text.png) 50 10, auto;
-}
 
 .text-comment-input {
     border: 0 none white;
@@ -181,40 +151,14 @@
 }
 
 .text-hover-erase {
-    cursor:url(../assets/eraser.png) 15 30, auto;
     border: dashed 3px red;
 }
 .text-hover-edit {
-    cursor:url(../assets/text.png) 15 30, auto;
     border: dashed 3px blue;
 }
 
 .user-editing-disabled {
     background-color: #f65555;
-}
-
-.red-pen-button {
-    font-size: 50px !important;
-    color: red !important;
-    background-color: #272B35;
-}
-
-.yellow-pen-button {
-    font-size: 50px !important;
-    color: yellow !important;
-    background-color: #272B35;
-}
-
-.black-pen-button {
-    font-size: 50px !important;
-    color: black !important;
-    background-color: #272B35;
-}
-
-.eraser-button {
-    font-size: 50px !important;
-    color: white !important;
-    background-color: #272B35;
 }
 
 .comments-div {

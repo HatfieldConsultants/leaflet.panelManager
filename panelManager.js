@@ -240,7 +240,11 @@
                 } else if (specPanel.type == "document-list") {
                     var documentList = L.DomUtil.create('ul', 'panelmanager-panel-document-list');
                     panel.panelContent.insertBefore(documentList, panel.panelContent.firstChild);
-
+                    if (specPanel.eventName) {
+                        window.addEventListener('comment-list-refresh', function (e) {
+                            self.loadDocumentList(specPanel, documentList);
+                        }, false);
+                    }
                     if (specPanel.documents) {
                         specPanel.documents.forEach(function(specDocument) {
                             var documentItem = L.DomUtil.create('li', 'panelmanager-panel-document-li');
@@ -251,6 +255,21 @@
 
 
             });
+        },
+
+        loadDocumentList: function(specPanel, documentList) {
+            while (documentList.hasChildNodes()) {
+                documentList.removeChild(documentList.lastChild);
+            }
+
+            if (specPanel.documentSource) {
+                specPanel.documentSource.forEach(function(document) {
+                    var documentItem = L.DomUtil.create('li', 'panelmanager-panel-document-li');
+                    documentItem.innerHTML = document.name;
+                    documentList.appendChild(documentItem);
+                });                        
+            }
+
         }
     };
     // return your plugin when you are done
