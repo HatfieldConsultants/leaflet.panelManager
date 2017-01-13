@@ -1,6 +1,6 @@
 /* fullscreen map */
 #map {
-	position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+    position: absolute; top: 0; left: 0; width: 100%; height: 100%;
 }
 
 /* control bar styles */
@@ -111,20 +111,20 @@
 
 
 .panel-control-icon {
-	height: 90%;
-	width: auto;
+    height: 90%;
+    width: auto;
 }
 
 
 .controlbar-button {
-	height: 40px;
-	width: 70px;
-	padding: 0px;
-	margin: 5px;
-	background-color: white;
+    height: 40px;
+    width: 70px;
+    padding: 0px;
+    margin: 5px;
+    background-color: white;
 }
 .controlbar-button:hover {
-	cursor: pointer;
+    cursor: pointer;
 }
 
 

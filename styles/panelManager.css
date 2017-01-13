@@ -129,8 +129,15 @@
 	top: 0;
 }
 
-.panelmanager-button {
+.panelmanager-panel-button {
+    border: none;
+    margin: 5px;
 }
+
+.panelmanager-panel-button:hover {
+    cursor: pointer;
+}
+
 .panelmanager-button:hover {
 	cursor: pointer;
 }

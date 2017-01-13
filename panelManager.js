@@ -230,12 +230,13 @@
                 if (specPanel.type == "button-list") {
                     specPanel.buttons.forEach(function(specButton) {
                         var button = L.DomUtil.create('button', 'panelmanager-panel-button');
-                        button.style.background = "url(" + specButton.icon + ") no-repeat"
+                        button.style.background = "url(" + specButton.icon + ") no-repeat";
+                        button.style.backgroundSize = "100% 100%";
                         if (specButton.callback) {
                             L.DomEvent.on(button, 'click',
                                 specButton.callback, self);                        
                         }
-                        panel.panelContent.append(button);
+                        panel.panelContent.appendChild(button);
                     });
                 } else if (specPanel.type == "document-list") {
                     var documentList = L.DomUtil.create('ul', 'panelmanager-panel-document-list');

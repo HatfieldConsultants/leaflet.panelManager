@@ -1101,7 +1101,7 @@ if (!Array.prototype.findIndex) {
                                     }
                                 });
 
-                                self.root.ControlBar.editComment(comment, image, { addText: true, textAreaMarker: marker });
+                                self.root.editComment(comment, image, { addText: true, textAreaMarker: marker });
                                 self.root.Tools.setCurrentTool('text', { listeners: false });
 
                                 inputBox.addEventListener('input', inputRenderText, false);
@@ -1205,7 +1205,7 @@ if (!Array.prototype.findIndex) {
                 buttons: [
                     {
                         name: "red pen",
-                        icon: "assets/red-pen.png",
+                        icon: "assets/red-circle.png",
                         callback: function() {
                             self.root.Tools.setCurrentTool('pen', {
                                 colour: 'red'
@@ -1214,7 +1214,7 @@ if (!Array.prototype.findIndex) {
                     },
                     {
                         name: "black pen",
-                        icon: "assets/black-pen.png",
+                        icon: "assets/black-circle.png",
                         callback: function() {
                             self.root.Tools.setCurrentTool('pen', {
                                 colour: 'black'
@@ -1223,7 +1223,7 @@ if (!Array.prototype.findIndex) {
                     },
                     {
                         name: "yellow pen",
-                        icon: "assets/yellow-pen.png",
+                        icon: "assets/yellow-circle.png",
                         callback: function() {
                             self.root.Tools.setCurrentTool('pen', {
                                 colour: 'yellow'
