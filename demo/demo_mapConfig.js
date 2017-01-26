@@ -8,5 +8,5 @@ var map = L.map('map', {
 map.doubleClickZoom.disable();
 map.options.minZoom = 3;
 // NOTE: do not use stamen without API key for production
-L.tileLayer('http://{s}.tile.stamen.com/watercolor/{z}/{x}/{y}.jpg', { // replace path with link to tile server...
+L.tileLayer('http://{s}.tile.stamen.com/toner/{z}/{x}/{y}.jpg', { // replace path with link to tile server...
 }).addTo(map);

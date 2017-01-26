@@ -107,17 +107,14 @@ if (!Array.prototype.findIndex) {
         stopDrawingMode: function () {
             var self = this;
 
-            // set mode to "drawing"
-            self.currentMode = 'controlBarHome';
-
             // turn off all drawing tools
             self.Tools.off();
 
             self.Comments.editingComment = '';
 
-            // Add all comment layer groups to map
+            // Make sure all comment layers are not visible on map
             self.Comments.list.forEach(function (comment) {
-                comment.addTo(map);
+                comment.removeFrom(map);
             });
 
             self.drawingCanvas.removeFrom(map);
@@ -149,7 +146,6 @@ if (!Array.prototype.findIndex) {
             if (options && options.textSave) {
                 // saving text, so special case
             } else {
-                comment.zoomLevel = self.ownMap.getZoom();
                 // SAVING LOGIC
                 var context = self.drawingCanvas._ctx;
                 var canvas = context.canvas;
@@ -272,8 +268,6 @@ if (!Array.prototype.findIndex) {
 
         editComment: function (comment, image, options) {
             var self = this;
-            // fly to comment
-            //map.flyToBounds(image._bounds, {animate: false});
 
             // trigger drawing mode
             if (options) {
@@ -290,12 +284,17 @@ if (!Array.prototype.findIndex) {
 
             if (image) {
                 var imageObj = new Image();
+                image.addTo(self.ownMap); // needed for image width and height...
+                // remember to remove the image after it is no longer needed (i.e. in imageObj.onload)
+                // it might be necessary to trigger the rest of this block AFTER the image layer is added by listening for the 'add' event
+                // for now this seems to be working, so I will leave it like this
 
-                var newWidth = image._image.width * self.ownMap.getZoomScale(self.ownMap.getZoom(), comment.zoomLevel);
-                var newHeight = image._image.height * self.ownMap.getZoomScale(self.ownMap.getZoom(), comment.zoomLevel);
+                var newWidth = image._image.width // * self.ownMap.getZoomScale(self.ownMap.getZoom(), comment.initialZoom); - this isn't needed apparently!
+                var newHeight = image._image.height //* self.ownMap.getZoomScale(self.ownMap.getZoom(), comment.initialZoom); - image height and width are adjusted by leaflet when changing zoom levels
 
                 imageObj.onload = function () {
                     context.drawImage(imageObj, image._image._leaflet_pos.x, image._image._leaflet_pos.y, newWidth, newHeight);
+                    image.removeFrom(self.ownMap);
                 };
 
                 imageObj.src = image._image.src;
@@ -310,6 +309,8 @@ if (!Array.prototype.findIndex) {
             }
             // Dispatch the event.
             self.ownMap._container.dispatchEvent(event);
+
+            self.Comments.mostRecentUsedComment = comment;
 
             return comment;
         },
@@ -516,13 +517,15 @@ if (!Array.prototype.findIndex) {
             var comment = L.layerGroup();
             comment.name = "Untitled Note";
             comment.textLayerGroup = L.layerGroup();
+            comment.coords = self.root.ownMap.getCenter();
+            comment.initialZoom = self.root.ownMap.getZoom();
 
             if (loadedComment) {
                 // prep comment with all that tasty info
                 comment.saveState = true;
                 comment.id = loadedComment.id;
                 comment.name = loadedComment.name;
-                comment.zoomLevel = loadedComment.zoomLevel;
+                comment.initialZoom = loadedComment.initialZoom;
 
                 // load sketch
                 var newImage = L.imageOverlay(loadedComment.drawing.dataUrl, [loadedComment.drawing.bounds.southWest, loadedComment.drawing.bounds.northEast]);
@@ -697,6 +700,14 @@ if (!Array.prototype.findIndex) {
             var self = this;
             self[self.currentTool].terminate();
             self.currentTool = '';
+            // add all text images
+
+            self.root.Comments.editingComment.getLayers().forEach(function (layer) {
+                if (layer.layerType == 'textDrawing') {
+                    layer.removeFrom(self.root.ownMap);
+                }
+            });
+
         },
 
         setCurrentTool: function (tool, options) {
@@ -776,7 +787,6 @@ if (!Array.prototype.findIndex) {
 
                 canvas.addEventListener('mousemove', function (e) {
                     if (self.stroke && self.root.Tools.currentTool == 'pen') {
-                        console.log(e);
                         var pos = self.root.Util.getMousePos(e);
                         self.mouseX = pos.x;
                         self.mouseY = pos.y;
@@ -947,23 +957,24 @@ if (!Array.prototype.findIndex) {
                         marker.addTo(self.root.ownMap);
                         marker.layerType = 'textAreaMarker';
                         self.root.saveDrawing(comment);
-                        self.root.ownMap.setView(marker._latlng, map.getZoom(), { animate: false });
-                        self.root.ownMap.panBy([200, 150], { animate: false });
+                      self.root.ownMap.setView(marker._latlng, map.getZoom(), { animate: false });
+                      self.root.ownMap.panBy([200, 150], { animate: false });
 
-                        // start editing again
-                        // ...
+                      // start editing again
+                      // ...
 
-                        comment.getLayers().forEach(function (layer) {
-                            if (layer.layerType == 'drawing') {
-                                image = layer;
-                            }
-                        });
+                      comment.getLayers().forEach(function (layer) {
+                          if (layer.layerType == 'drawing') {
+                              image = layer;
+                          }
+                      });
 
-                        self.root.editComment(comment, image, { addText: true, textAreaMarker: marker });
-                        self.root.Tools.setCurrentTool('text', { listeners: false });
-                        textBox = document.getElementById(id);
-                        textBox.focus();
-                        textBox.addEventListener('input', inputRenderText, false);
+                      self.root.editComment(comment, image, { addText: true, textAreaMarker: marker });
+                      self.root.Tools.setCurrentTool('text', { listeners: false });
+                      textBox = document.getElementById(id);
+                      textBox.focus();
+                      textBox.addEventListener('input', inputRenderText, false);
+
                     }
                 };
 
@@ -1135,6 +1146,29 @@ if (!Array.prototype.findIndex) {
 
             }
 
+            var fireShowToolsEvent = function () {
+                try {
+                    var event = new Event('drawing-tools-show');
+                }
+                catch (err) {
+                    var event = document.createEvent("CustomEvent");
+                    event.initCustomEvent("drawing-tools-show", true, false, { detail: {} });
+                }
+                // Dispatch the event.
+                window.dispatchEvent(event);
+            }
+            var fireHideToolsEvent = function () {
+                try {
+                    var event = new Event('drawing-tools-hide');
+                }
+                catch (err) {
+                    var event = document.createEvent("CustomEvent");
+                    event.initCustomEvent("drawing-tools-hide", true, false, { detail: {} });
+                }
+                // Dispatch the event.
+                window.dispatchEvent(event);
+            }
+
             self.root.ownMap._container.addEventListener('new-comment-created', function (e) {
                 console.log('new comment created');
                 fireUpdateCommentListViewEvent();
@@ -1146,10 +1180,12 @@ if (!Array.prototype.findIndex) {
             self.root.ownMap._container.addEventListener('comment-edit-start', function (e) {
                 console.log('started editing a comment');
                 fireUpdateCommentListViewEvent();
+                fireShowToolsEvent();
             }, false);
             self.root.ownMap._container.addEventListener('comment-edit-end', function (e) {
                 console.log('finished editing a comment');
                 fireUpdateCommentListViewEvent();
+                fireHideToolsEvent();
             }, false);
 
             // listen for events emitted by Network module
@@ -1172,12 +1208,14 @@ if (!Array.prototype.findIndex) {
             guiSpecification.panels = [];
 
             // Tool panel (3 colours of pens, eraser, and text tool)
+            var oldMouseStyle;
 
             var toolPanel = {
                 type: "button-list",
                 position: "bottom",
                 toggleHide: "button",
                 title: "Drawing Tools",
+                panelName: "redliner-drawing-tools",
                 toggleIcon: "assets/pencil.png",
                 toggleOnCallback: function () {
                     self.root.startNewComment();
@@ -1190,6 +1228,7 @@ if (!Array.prototype.findIndex) {
                     if (self.root.ownMap.tap) {
                         self.root.ownMap.tap.disable();
                     }
+                    oldMouseStyle = document.getElementById('map').style.cursor;
                     document.getElementById('map').style.cursor = 'default';
                 },
                 toggleOffCallback: function () {
@@ -1203,7 +1242,7 @@ if (!Array.prototype.findIndex) {
                     if (self.root.ownMap.tap) {
                         self.root.ownMap.tap.enable();
                     }
-                    document.getElementById('map').style.cursor = 'grab';
+                    document.getElementById('map').style.cursor = oldMouseStyle;
                 },
                 buttons: [
                     {
@@ -1258,13 +1297,87 @@ if (!Array.prototype.findIndex) {
                 title: "Comments",
                 toggleHide: true,
                 eventName: "comment-list-refresh",
+                panelName: "redliner-comment-list",
                 documentSource: self.root.Comments.list,
                 documentActions: [
+                	{
+                		name: "View",
+                		style: "view",
+                		action: function(comment) {
+                			console.log("view comment");
+							self.root.Comments.list.forEach(function(list_comment) {
+								list_comment.removeFrom(self.root.ownMap);
+							});
+
+							comment.addTo(self.root.ownMap);
+
+
+                			self.root.ownMap.setView(comment.coords, comment.initialZoom);
+                		}
+                	},
                     {
-                        name: "Edit"
+                        name: "Edit",
+                        style: "edit",
+                        action: function(comment) {
+                        	console.log("edit comment");
+
+    	                    self.root.ownMap.dragging.disable();
+		                    self.root.ownMap.touchZoom.disable();
+		                    self.root.ownMap.doubleClickZoom.disable();
+		                    self.root.ownMap.scrollWheelZoom.disable();
+		                    self.root.ownMap.boxZoom.disable();
+		                    self.root.ownMap.keyboard.disable();
+		                    if (self.root.ownMap.tap) {
+		                        self.root.ownMap.tap.disable();
+		                    }
+		                    oldMouseStyle = document.getElementById('map').style.cursor;
+		                    document.getElementById('map').style.cursor = 'default';
+
+                        	var image;
+
+							self.root.Comments.list.forEach(function(list_comment) {
+								list_comment.removeFrom(self.root.ownMap);
+							});
+
+                        	comment.getLayers().forEach(function(layer) {
+                    			if (layer.layerType == "drawing") {
+                    				image = layer;
+                    			}
+                        	});
+
+                        	var onAdd = function() {
+	        	                try {
+				                    var event1 = new Event('show-redliner-drawing-tools');
+				                    var event2 = new Event('hide-redliner-comment-list');
+				                }
+				                catch (err) {
+				                    var event1 = document.createEvent("CustomEvent");
+				                    event.initCustomEvent("show-redliner-drawing-tools", true, false, { detail: {} });
+				                    var event2 = document.createEvent("CustomEvent");
+				                    event.initCustomEvent("hide-redliner-comment-list", true, false, { detail: {} });
+				                }
+				                // Dispatch the event.
+				                window.dispatchEvent(event1);
+				                window.dispatchEvent(event2);
+
+                        		self.root.editComment(comment, image);
+                        		comment.off('add', onAdd);
+                        	}
+
+        	                comment.on('add', onAdd);
+
+							comment.addTo(self.root.ownMap);
+
+
+
+                        }
                     },
                     {
-                        name: "Delete"
+                        name: "Delete",
+                        style: "delete",
+                        action: function(document) {
+                        	console.log("delete comment");
+                        }
                     }
                 ]
             }

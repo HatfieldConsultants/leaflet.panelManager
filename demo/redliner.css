@@ -213,3 +213,18 @@
 .text {
     background: url(../assets/text.png) no-repeat;
 }
+
+.view {
+    color: white;
+    background-color: #61966b;
+}
+
+.edit {
+    color: white;
+    background-color: #658bce;
+}
+
+.delete {
+    color: white;
+    background-color: #c6423d;
+}

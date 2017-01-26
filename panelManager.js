@@ -76,7 +76,7 @@
                 if (options.title) {
                     title.innerHTML = options.title;
                 }
-                
+
                 var panelContent = L.DomUtil.create('div', 'panelmanager-panel-content');
                 panel.panelContent = panelContent;
                 panel.appendChild(panelContent);
@@ -88,8 +88,8 @@
 
                     L.DomUtil.addClass(close, "panelmanager-close-" + options.position);
                     close.innerHTML = '&times;';
-    
-                    var togglePanel = function(e){
+
+                    panel.togglePanel = function(e){
                         if (panel.visible) {
                             L.DomUtil.removeClass(panel, "panelmanager-max-" + options.position);
                             L.DomUtil.addClass(panel, "panelmanager-min-" + options.position);
@@ -100,12 +100,12 @@
                             L.DomUtil.removeClass(panel, "panelmanager-min-" + options.position);
                             L.DomUtil.addClass(panel, "panelmanager-max-" + options.position);
                             close.innerHTML = '&times;'; // temporary
-                            L.DomUtil.removeClass(panel.titleDiv, "invisible");                    
-                            L.DomUtil.removeClass(panel.panelContent, "invisible");                    
+                            L.DomUtil.removeClass(panel.titleDiv, "invisible");
+                            L.DomUtil.removeClass(panel.panelContent, "invisible");
                         }
                         panel.visible = !panel.visible;
                     };
-                    var hidePanel = function(e){
+                    panel.hidePanel = function(e){
                         L.DomUtil.removeClass(panel, "panelmanager-max-" + options.position);
                         L.DomUtil.addClass(panel, "panelmanager-invisible-" + options.position);
                         panel.visible = false;
@@ -115,19 +115,24 @@
                         L.DomUtil.removeClass(panel.button, "invisible");
 
                     };
-                    var showPanel = function(e){
+                    panel.showPanel = function(e){
                         L.DomUtil.removeClass(panel, "panelmanager-invisible-" + options.position);
                         L.DomUtil.addClass(panel, "panelmanager-max-" + options.position);
                         panel.visible = true;
 
                         L.DomUtil.removeClass(panel.titleDiv, "invisible");
                         L.DomUtil.removeClass(panel.panelContent, "invisible");
-                        L.DomUtil.addClass(panel.button, "invisible" );                        
+                        L.DomUtil.addClass(panel.button, "invisible" );
                     };
 
                     if (options.toggleHide == "button") {
-                        panel.visible = false;
-                        L.DomUtil.addClass(panel, "panelmanager-invisible-" + options.position);
+                        if (!options.initiallyVisible) {
+                            panel.visible = false;
+                            L.DomUtil.addClass(panel, "panelmanager-invisible-" + options.position);
+                        } else {
+                            panel.visible = true;
+                            L.DomUtil.addClass(panel, "panelmanager-visible-" + options.position);
+                        }
 
                         //add a button to show panel
                         panel.button = L.DomUtil.create('div', 'leaflet-control');
@@ -150,10 +155,10 @@
                                 panel.button.style.cursor = 'pointer';
 
                                 L.DomEvent.on(panel.button, 'click',
-                                    showPanel, self);
+                                    panel.showPanel, self);
 
                                 L.DomEvent.on(close, 'click',
-                                    hidePanel, self);
+                                    panel.hidePanel, self);
 
                                 // optional callback that can be triggered when opening a panel with button-toggle
                                 if (options.toggleOnCallback) {
@@ -171,10 +176,19 @@
                         map.addControl(new customControl());
 
                     } else {
-                        L.DomUtil.addClass(panel, "panelmanager-max-" + options.position);
+                        if (!options.initiallyVisible) {
+                            panel.visible = false;
+                            L.DomUtil.addClass(panel, "panelmanager-min-" + options.position);
+                            close.innerHTML = '+'; // temporary
+                            L.DomUtil.addClass(panel.titleDiv, "invisible");
+                            L.DomUtil.addClass(panel.panelContent, "invisible");
+                        } else {
+                            panel.visible = true;
+                            L.DomUtil.addClass(panel, "panelmanager-max-" + options.position);
+                        }
 
                         L.DomEvent.on(close, 'click',
-                            togglePanel, self);                        
+                            panel.togglePanel, self);
                     }
 
                 }
@@ -204,7 +218,7 @@
             });
             panels.forEach(function(panel, index) {
                 if (position == "top" || position == "bottom") {
-                    panel.style.width = (defaultDimension / panels.length) + "%";         
+                    panel.style.width = (defaultDimension / panels.length) + "%";
                     panel.style.left = ((parseFloat(panel.style.width) * index) + (50 - defaultDimension/2)) + "%";
                 } else if (position == "left" || position == "right") {
                     panel.style.height = (defaultDimension / panels.length) + "%";
@@ -224,8 +238,38 @@
                     toggleOnCallback: specPanel.toggleOnCallback,
                     toggleOffCallback: specPanel.toggleOffCallback,
                     title: specPanel.title,
+                    silentToggleOnEvent: specPanel.silentToggleOnEvent,
+                    silentToggleOffEvent: specPanel.silentToggleOffEvent,
+                    initiallyVisible: specPanel.initiallyVisible,
                 });
                 panel.addTo(map);
+
+                // listeners for opening and closing the panel (silently)
+                if (specPanel.toggleHide) {
+
+                    if (specPanel.toggleHide == "button") {
+                        window.addEventListener('show-' + specPanel.panelName, function (e) {
+                            panel.showPanel();
+                        }, false);
+
+                        window.addEventListener('hide-' + specPanel.panelName, function (e) {
+                            panel.hidePanel();
+                        }, false);
+                    } else {
+                        window.addEventListener('show-' + specPanel.panelName, function (e) {
+                            // TODO: check if panel is already visible
+                            panel.togglePanel();
+                        }, false);
+
+                        window.addEventListener('hide-' + specPanel.panelName, function (e) {
+                            // TODO: check if panel is already hidden
+                            panel.togglePanel();
+                        }, false);
+
+                    }
+
+                }
+
 
                 if (specPanel.type == "button-list") {
                     specPanel.buttons.forEach(function(specButton) {
@@ -233,7 +277,7 @@
                         button.style.backgroundSize = "100% 100%";
                         if (specButton.callback) {
                             L.DomEvent.on(button, 'click',
-                                specButton.callback, self);                        
+                                specButton.callback, self);
                         }
                         panel.panelContent.appendChild(button);
                     });
@@ -245,12 +289,7 @@
                             self.loadDocumentList(specPanel, documentList);
                         }, false);
                     }
-                    if (specPanel.documents) {
-                        specPanel.documents.forEach(function(specDocument) {
-                            var documentItem = L.DomUtil.create('li', 'panelmanager-panel-document-li');
-                            documentList.appendChild(documentItem);
-                        });                        
-                    }
+                    self.loadDocumentList(specPanel, documentList);
                 }
 
 
@@ -263,11 +302,29 @@
             }
 
             if (specPanel.documentSource) {
+
+                var styleList = specPanel.documentActions.map(function(a) {return a.style;});
+
                 specPanel.documentSource.forEach(function(document) {
                     var documentItem = L.DomUtil.create('li', 'panelmanager-panel-document-li');
-                    documentItem.innerHTML = document.name;
+                    var documentItemPropertyList = L.DomUtil.create('ul', 'panelmanager-document-property-ul');
+                    documentItem.appendChild(documentItemPropertyList);
+                    itemName = L.DomUtil.create('li', 'panelmanager-document-name panelmanager-document-property-li');
+                    itemName.innerHTML = document.name;
+                    documentItemPropertyList.appendChild(itemName);
+                    specPanel.documentActions.forEach(function(documentAction) {
+                        actionLi = L.DomUtil.create('li', 'panelmanager-document-action panelmanager-document-property-li');
+                        actionButton = L.DomUtil.create('button', 'panelmanager-document-action panelmanager-document-property-button ' + documentAction.style);
+                        documentItemPropertyList.appendChild(actionLi);
+                        actionButton.innerHTML = documentAction.name;
+                        actionButton.onclick = function() {
+                            documentAction.action(document);
+                        };
+                        actionLi.appendChild(actionButton);
+                    });
+
                     documentList.appendChild(documentItem);
-                });                        
+                });
             }
 
         }
