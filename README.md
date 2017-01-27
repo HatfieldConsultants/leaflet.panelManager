@@ -50,7 +50,7 @@ E.g.
 
 **Plugin Development Guide**
 
-PluginManager can be used as a kind of front-end for Leaflet plugins which employ the interface. Plugins must have a GUI property with a "loadPanels" function, which must return an array of panel specifications objects. The array can contain as many panel specifications as desired. (See [Redliner](https://github.com/NimaBoscarino/leaflet.redliner) for an example of implementing both a
+PluginManager can be used as a kind of front-end for Leaflet plugins which employ the interface. Plugins must have a GUI property with a "loadPanels" function, which must return an array of panel specifications objects. The array can contain as many panel specifications as desired. (See [Redliner](https://github.com/NimaBoscarino/leaflet.redliner) for an example of implementing both a button-list panel and a document-list panel.
 
 A panel is specified as such:
 
