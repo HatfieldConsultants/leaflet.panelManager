@@ -252,13 +252,8 @@ if (!Array.prototype.findIndex) {
                 self.ownMap._container.dispatchEvent(event);
 
             } else {
-                try {
-                    var event = new Event('comment-edit-end');
-                }
-                catch (err) {
-                    var event = document.createEvent("CustomEvent");
-                    event.initCustomEvent("comment-edit-end", true, false, { detail: {} });
-                }
+                var event = document.createEvent("CustomEvent");
+                event.initCustomEvent("comment-edit-end", true, false, comment);
                 // Dispatch the event.
                 self.ownMap._container.dispatchEvent(event);
             }
@@ -300,13 +295,8 @@ if (!Array.prototype.findIndex) {
                 imageObj.src = image._image.src;
             }
 
-            try {
-                var event = new Event('comment-edit-start');
-            }
-            catch (err) {
-                var event = document.createEvent("CustomEvent");
-                event.initCustomEvent("comment-edit-start", true, false, { detail: {} });
-            }
+            var event = document.createEvent("CustomEvent");
+            event.initCustomEvent("comment-edit-start", true, false, comment);
             // Dispatch the event.
             self.ownMap._container.dispatchEvent(event);
 
@@ -605,11 +595,6 @@ if (!Array.prototype.findIndex) {
 
         getMousePos: function (e) {
             var self = this;
-            // this parses stuff like "translate3d(-1257px, -57px, 0px)" and turns it into an array like...
-            // [ "translate3d", "-1257", "", "", "-57", "", "", "0", "", "" ]
-            //var canvasTransformArray = self.root.drawingCanvas._container.style.transform.split(/,|\(|\)|px| /);
-            //var x_true = x + (parseFloat(canvasTransformArray[1]));
-            //var y_true = y + (parseFloat(canvasTransformArray[4]));
 
             pos = self.root.ownMap.mouseEventToLayerPoint(e);
             return {
@@ -957,24 +942,23 @@ if (!Array.prototype.findIndex) {
                         marker.addTo(self.root.ownMap);
                         marker.layerType = 'textAreaMarker';
                         self.root.saveDrawing(comment);
-                      self.root.ownMap.setView(marker._latlng, map.getZoom(), { animate: false });
-                      self.root.ownMap.panBy([200, 150], { animate: false });
+                        self.root.ownMap.setView(marker._latlng, map.getZoom(), { animate: false });
+                        self.root.ownMap.panBy([200, 150], { animate: false });
 
-                      // start editing again
-                      // ...
+                        // start editing again
+                        // ...
 
-                      comment.getLayers().forEach(function (layer) {
-                          if (layer.layerType == 'drawing') {
-                              image = layer;
-                          }
-                      });
+                        comment.getLayers().forEach(function (layer) {
+                            if (layer.layerType == 'drawing') {
+                                image = layer;
+                            }
+                        });
 
-                      self.root.editComment(comment, image, { addText: true, textAreaMarker: marker });
-                      self.root.Tools.setCurrentTool('text', { listeners: false });
-                      textBox = document.getElementById(id);
-                      textBox.focus();
-                      textBox.addEventListener('input', inputRenderText, false);
-
+                        self.root.editComment(comment, image, { addText: true, textAreaMarker: marker });
+                        self.root.Tools.setCurrentTool('text', { listeners: false });
+                        textBox = document.getElementById(id);
+                        textBox.focus();
+                        textBox.addEventListener('input', inputRenderText, false);
                     }
                 };
 
@@ -1134,37 +1118,36 @@ if (!Array.prototype.findIndex) {
             var self = this;
 
             var fireUpdateCommentListViewEvent = function () {
-                try {
-                    var event = new Event('comment-list-refresh');
-                }
-                catch (err) {
-                    var event = document.createEvent("CustomEvent");
-                    event.initCustomEvent("comment-list-refresh", true, false, { detail: {} });
-                }
+                var event = document.createEvent("CustomEvent");
+                event.initCustomEvent("comment-list-refresh", true, false, { detail: {} });
                 // Dispatch the event.
                 window.dispatchEvent(event);
 
             }
 
             var fireShowToolsEvent = function () {
-                try {
-                    var event = new Event('drawing-tools-show');
-                }
-                catch (err) {
-                    var event = document.createEvent("CustomEvent");
-                    event.initCustomEvent("drawing-tools-show", true, false, { detail: {} });
-                }
+                var event = document.createEvent("CustomEvent");
+                event.initCustomEvent("drawing-tools-show", true, false, { detail: {} });
                 // Dispatch the event.
                 window.dispatchEvent(event);
             }
             var fireHideToolsEvent = function () {
-                try {
-                    var event = new Event('drawing-tools-hide');
-                }
-                catch (err) {
-                    var event = document.createEvent("CustomEvent");
-                    event.initCustomEvent("drawing-tools-hide", true, false, { detail: {} });
-                }
+                var event = document.createEvent("CustomEvent");
+                event.initCustomEvent("drawing-tools-hide", true, false, { detail: {} });
+                // Dispatch the event.
+                window.dispatchEvent(event);
+            }
+
+            var fireEnableEditEvent = function (comment) {
+                var event = document.createEvent("CustomEvent");
+                event.initCustomEvent('enable-edit', true, false, comment);
+                // Dispatch the event.
+                window.dispatchEvent(event);
+            }
+
+            var fireDisableEditEvent = function (comment) {
+                var event = document.createEvent("CustomEvent");
+                event.initCustomEvent('disable-edit', true, false, comment);
                 // Dispatch the event.
                 window.dispatchEvent(event);
             }
@@ -1181,11 +1164,15 @@ if (!Array.prototype.findIndex) {
                 console.log('started editing a comment');
                 fireUpdateCommentListViewEvent();
                 fireShowToolsEvent();
+                var comment = e.detail;
+                fireDisableEditEvent(comment);
             }, false);
             self.root.ownMap._container.addEventListener('comment-edit-end', function (e) {
                 console.log('finished editing a comment');
                 fireUpdateCommentListViewEvent();
                 fireHideToolsEvent();
+                var comment = e.detail;
+                fireEnableEditEvent(comment);
             }, false);
 
             // listen for events emitted by Network module
@@ -1294,6 +1281,20 @@ if (!Array.prototype.findIndex) {
             var commentPanel = {
                 type: "document-list",
                 position: "bottom",
+                responsiveRules: function(map) {
+                        var mapSize = map.getSize();
+                        if (mapSize.x >= mapSize.y) {
+                            var rules = {
+                                position: "bottom",
+                            }
+                            return rules;s
+                        } else if (mapSize.y > mapSize.x) {
+                            var rules = {
+                                position: "top",
+                            }
+                            return rules;
+                        }
+                },
                 title: "Comments",
                 toggleHide: true,
                 eventName: "comment-list-refresh",
@@ -1301,8 +1302,8 @@ if (!Array.prototype.findIndex) {
                 documentSource: self.root.Comments.list,
                 documentActions: [
                 	{
-                		name: "View",
-                		style: "view",
+                		displayName: "View",
+                		name: "view",
                 		action: function(comment) {
                 			console.log("view comment");
 							self.root.Comments.list.forEach(function(list_comment) {
@@ -1316,8 +1317,8 @@ if (!Array.prototype.findIndex) {
                 		}
                 	},
                     {
-                        name: "Edit",
-                        style: "edit",
+                        displayName: "Edit",
+                        name: "edit",
                         action: function(comment) {
                         	console.log("edit comment");
 
@@ -1373,8 +1374,8 @@ if (!Array.prototype.findIndex) {
                         }
                     },
                     {
-                        name: "Delete",
-                        style: "delete",
+                        displayName: "Delete",
+                        name: "delete",
                         action: function(document) {
                         	console.log("delete comment");
                         }

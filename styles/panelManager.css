@@ -187,3 +187,7 @@
     border-radius: 3px;
     cursor: pointer;
 }
+
+.panelmanager-document-property-button-disabled {
+    background-color: #c2c4c6;
+}

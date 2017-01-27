@@ -25,9 +25,17 @@
         },
 
         addTo: function(map) {
+            var self = this;
             map.PanelManager = PanelManager;
             this.map = map;
             map.PanelManager.list = [];
+            map.on('resize', function() {
+                self.list.forEach(function(panel) {
+                    if (panel.responsiveRules) {
+                        panel.responsiveRules(map);
+                    }
+                })
+            });
         },
 
         newPanel: function(options) {
@@ -81,6 +89,9 @@
                 panel.panelContent = panelContent;
                 panel.appendChild(panelContent);
 
+                if (options.responsiveRules) {
+                    panel.responsiveRules = options.responsiveRules;
+                }
 
                 if (options.toggleHide) {
                     var close = L.DomUtil.create('a', 'close');
@@ -241,6 +252,7 @@
                     silentToggleOnEvent: specPanel.silentToggleOnEvent,
                     silentToggleOffEvent: specPanel.silentToggleOffEvent,
                     initiallyVisible: specPanel.initiallyVisible,
+                    responsiveRules: specPanel.responsiveRules,
                 });
                 panel.addTo(map);
 
@@ -290,6 +302,25 @@
                         }, false);
                     }
                     self.loadDocumentList(specPanel, documentList);
+
+                    specPanel.documentActions.forEach(function(documentAction) {
+                        // listeners for button state (active/inactive)
+                        window.addEventListener('enable-' + documentAction.name, function (e) {
+                            var comment = e.detail;
+                            actionButton = document.getElementById('edit-' + comment.id);
+                            L.DomUtil.removeClass(actionButton, 'panelmanager-document-property-button-disabled');
+                            actionButton.disabled = false;
+                            console.log('enabling ' + documentAction.name + ' for ' + comment.name);
+                        }, false);
+
+                        window.addEventListener('disable-' + documentAction.name, function (e) {
+                            var comment = e.detail;
+                            actionButton = document.getElementById('edit-' + comment.id);
+                            L.DomUtil.addClass(actionButton, 'panelmanager-document-property-button-disabled');
+                            actionButton.disabled = true;
+                            console.log('disabling ' + documentAction.name + ' for ' + comment.name);
+                        }, false);
+                    });
                 }
 
 
@@ -303,23 +334,24 @@
 
             if (specPanel.documentSource) {
 
-                var styleList = specPanel.documentActions.map(function(a) {return a.style;});
-
-                specPanel.documentSource.forEach(function(document) {
+                specPanel.documentSource.forEach(function(panelDocument) {
+                    var self = this;
                     var documentItem = L.DomUtil.create('li', 'panelmanager-panel-document-li');
                     var documentItemPropertyList = L.DomUtil.create('ul', 'panelmanager-document-property-ul');
                     documentItem.appendChild(documentItemPropertyList);
                     itemName = L.DomUtil.create('li', 'panelmanager-document-name panelmanager-document-property-li');
-                    itemName.innerHTML = document.name;
+                    itemName.innerHTML = panelDocument.name;
                     documentItemPropertyList.appendChild(itemName);
                     specPanel.documentActions.forEach(function(documentAction) {
                         actionLi = L.DomUtil.create('li', 'panelmanager-document-action panelmanager-document-property-li');
-                        actionButton = L.DomUtil.create('button', 'panelmanager-document-action panelmanager-document-property-button ' + documentAction.style);
+                        actionButton = L.DomUtil.create('button', 'panelmanager-document-action panelmanager-document-property-button ' + documentAction.name);
                         documentItemPropertyList.appendChild(actionLi);
-                        actionButton.innerHTML = documentAction.name;
+                        actionButton.innerHTML = documentAction.displayName;
+                        actionButton.id = documentAction.name + "-" + panelDocument.id;
                         actionButton.onclick = function() {
-                            documentAction.action(document);
+                            documentAction.action(panelDocument);
                         };
+
                         actionLi.appendChild(actionButton);
                     });
 
