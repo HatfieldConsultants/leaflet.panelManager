@@ -19,18 +19,18 @@
 
         version: '0.1.0',
 
-        getVersion: function() {
+        getVersion: function () {
             var self = this;
             console.log(self.version);
         },
 
-        addTo: function(map) {
+        addTo: function (map) {
             var self = this;
             map.PanelManager = PanelManager;
             this.map = map;
             map.PanelManager.list = [];
-            map.on('resize', function() {
-                self.list.forEach(function(panel) {
+            map.on('resize', function () {
+                self.list.forEach(function (panel) {
                     if (panel.responsiveRules) {
                         panel.responsiveRules(map);
                     }
@@ -38,7 +38,7 @@
             });
         },
 
-        newPanel: function(options) {
+        newPanel: function (options) {
             /* options ----
                 - title
                 - position: top/bottom/left/right // for default desktop view
@@ -67,7 +67,7 @@
             var panel = L.DomUtil.create('div', 'panelmanager-panel');
             L.DomUtil.addClass(panel, "panelmanager-" + options.position);
 
-            panel.addTo = function(map) {
+            panel.addTo = function (map) {
                 map.PanelManager.list.push(panel);
                 var controlContainer = map._controlContainer;
                 controlContainer.insertBefore(panel, controlContainer.firstChild);
@@ -100,7 +100,7 @@
                     L.DomUtil.addClass(close, "panelmanager-close-" + options.position);
                     close.innerHTML = '&times;';
 
-                    panel.togglePanel = function(e){
+                    panel.togglePanel = function (e) {
                         if (panel.visible) {
                             L.DomUtil.removeClass(panel, "panelmanager-max-" + options.position);
                             L.DomUtil.addClass(panel, "panelmanager-min-" + options.position);
@@ -116,7 +116,7 @@
                         }
                         panel.visible = !panel.visible;
                     };
-                    panel.hidePanel = function(e){
+                    panel.hidePanel = function (e) {
                         L.DomUtil.removeClass(panel, "panelmanager-max-" + options.position);
                         L.DomUtil.addClass(panel, "panelmanager-invisible-" + options.position);
                         panel.visible = false;
@@ -126,14 +126,14 @@
                         L.DomUtil.removeClass(panel.button, "invisible");
 
                     };
-                    panel.showPanel = function(e){
+                    panel.showPanel = function (e) {
                         L.DomUtil.removeClass(panel, "panelmanager-invisible-" + options.position);
                         L.DomUtil.addClass(panel, "panelmanager-max-" + options.position);
                         panel.visible = true;
 
                         L.DomUtil.removeClass(panel.titleDiv, "invisible");
                         L.DomUtil.removeClass(panel.panelContent, "invisible");
-                        L.DomUtil.addClass(panel.button, "invisible" );
+                        L.DomUtil.addClass(panel.button, "invisible");
                     };
 
                     if (options.toggleHide == "button") {
@@ -145,12 +145,6 @@
                             L.DomUtil.addClass(panel, "panelmanager-visible-" + options.position);
                         }
 
-                        //add a button to show panel
-                        panel.button = L.DomUtil.create('div', 'leaflet-control');
-                        panel.button.style.backgroundColor = 'white';
-                        panel.button.style.width = '40px';
-                        panel.button.style.height = '40px';
-                        panel.button.style.cursor = 'pointer';
                         var customControl = L.Control.extend({
                             options: {
                                 position: 'topleft'
@@ -158,12 +152,10 @@
                             },
 
                             onAdd: function (map) {
-                                 //add a button to show panel
+                                //add a button to show panel
                                 panel.button = L.DomUtil.create('div', 'leaflet-bar panelmanager-button');
                                 panel.button.style.backgroundColor = 'white';
-                                panel.button.style.width = '40px';
-                                panel.button.style.height = '40px';
-                                panel.button.style.cursor = 'pointer';
+                                panel.button.innerHTML = options.title;
 
                                 L.DomEvent.on(panel.button, 'click',
                                     panel.showPanel, self);
@@ -209,7 +201,7 @@
             return panel;
         },
 
-        flexRender: function(position) {
+        flexRender: function (position) {
             var self = this;
             panels = [];
             var offsetPosition;
@@ -222,27 +214,27 @@
                 defaultDimension = 90;
             }
 
-            self.list.forEach(function(panel) {
+            self.list.forEach(function (panel) {
                 if (L.DomUtil.hasClass(panel, 'panelmanager-' + position)) {
                     panels.push(panel);
                 }
             });
-            panels.forEach(function(panel, index) {
+            panels.forEach(function (panel, index) {
                 if (position == "top" || position == "bottom") {
                     panel.style.width = (defaultDimension / panels.length) + "%";
-                    panel.style.left = ((parseFloat(panel.style.width) * index) + (50 - defaultDimension/2)) + "%";
+                    panel.style.left = ((parseFloat(panel.style.width) * index) + (50 - defaultDimension / 2)) + "%";
                 } else if (position == "left" || position == "right") {
                     panel.style.height = (defaultDimension / panels.length) + "%";
-                    panel.style.top = ((parseFloat(panel.style.height) * index) + (50 - defaultDimension/2)) + "%";
+                    panel.style.top = ((parseFloat(panel.style.height) * index) + (50 - defaultDimension / 2)) + "%";
                 }
             });
         },
 
-        loadPlugin: function(plugin) {
+        loadPlugin: function (plugin) {
             var self = this;
             var spec = plugin.GUI.loadPanels();
 
-            spec.panels.forEach(function(specPanel) {
+            spec.panels.forEach(function (specPanel) {
                 var panel = self.newPanel({
                     position: specPanel.position,
                     toggleHide: specPanel.toggleHide,
@@ -284,7 +276,7 @@
 
 
                 if (specPanel.type == "button-list") {
-                    specPanel.buttons.forEach(function(specButton) {
+                    specPanel.buttons.forEach(function (specButton) {
                         var button = L.DomUtil.create('button', 'panelmanager-panel-button ' + specButton.icon);
                         button.style.backgroundSize = "100% 100%";
                         if (specButton.callback) {
@@ -303,7 +295,7 @@
                     }
                     self.loadDocumentList(specPanel, documentList);
 
-                    specPanel.documentActions.forEach(function(documentAction) {
+                    specPanel.documentActions.forEach(function (documentAction) {
                         // listeners for button state (active/inactive)
                         window.addEventListener('enable-' + documentAction.name, function (e) {
                             var comment = e.detail;
@@ -327,14 +319,14 @@
             });
         },
 
-        loadDocumentList: function(specPanel, documentList) {
+        loadDocumentList: function (specPanel, documentList) {
             while (documentList.hasChildNodes()) {
                 documentList.removeChild(documentList.lastChild);
             }
 
             if (specPanel.documentSource) {
 
-                specPanel.documentSource.forEach(function(panelDocument) {
+                specPanel.documentSource.forEach(function (panelDocument) {
                     var self = this;
                     var documentItem = L.DomUtil.create('li', 'panelmanager-panel-document-li');
                     var documentItemPropertyList = L.DomUtil.create('ul', 'panelmanager-document-property-ul');
@@ -342,13 +334,13 @@
                     itemName = L.DomUtil.create('li', 'panelmanager-document-name panelmanager-document-property-li');
                     itemName.innerHTML = panelDocument.name;
                     documentItemPropertyList.appendChild(itemName);
-                    specPanel.documentActions.forEach(function(documentAction) {
+                    specPanel.documentActions.forEach(function (documentAction) {
                         actionLi = L.DomUtil.create('li', 'panelmanager-document-action panelmanager-document-property-li');
                         actionButton = L.DomUtil.create('button', 'panelmanager-document-action panelmanager-document-property-button ' + documentAction.name);
                         documentItemPropertyList.appendChild(actionLi);
                         actionButton.innerHTML = documentAction.displayName;
                         actionButton.id = documentAction.name + "-" + panelDocument.id;
-                        actionButton.onclick = function() {
+                        actionButton.onclick = function () {
                             documentAction.action(panelDocument);
                         };
 
