@@ -3,7 +3,7 @@
 
 *Create and manage panels stand-alone panels for Leaflet maps, or load panels to house Leaflet plugins*
 
-**[Demo](https://nimaboscarino.github.io/leaflet.panelManager/)**
+**[Demo](https://hatfieldconsultants.github.io/leaflet.panelManager/)**
 
 **Installation and Use**:
 
