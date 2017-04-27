@@ -21,7 +21,7 @@
 
         getVersion: function () {
             var self = this;
-            console.log(self.version);
+            //console.log(self.version);
         },
 
         addTo: function (map) {
@@ -31,10 +31,17 @@
             map.PanelManager.list = [];
             map.on('resize', function () {
                 self.list.forEach(function (panel) {
-                    if (panel.responsiveRules) {
-                        panel.responsiveRules(map);
-                    }
-                })
+                    // if (panel.responsiveRules) {
+                    //     var responsivePos = panel.responsiveRules(map).position;
+                    //     L.DomUtil.removeClass(panel, 'panelmanager-' + panel.originalPosition);
+                    //     L.DomUtil.removeClass(panel, 'panelmanager-min-' + panel.originalPosition);
+                    //     L.DomUtil.removeClass(panel, 'panelmanager-max-' + panel.originalPosition);
+                    //     L.DomUtil.addClass(panel, 'panelmanager-' + responsivePos);
+                    //     //console.log(panel);
+                    //     self.flexRender(responsivePos);
+                    //
+                    // }
+                });
             });
         },
 
@@ -72,7 +79,7 @@
                 var controlContainer = map._controlContainer;
                 controlContainer.insertBefore(panel, controlContainer.firstChild);
                 panel.visible = true;
-
+                panel.originalPosition = options.position;
 
                 var titleDiv = L.DomUtil.create('div', 'panelmanager-panel-titlediv');
                 panel.appendChild(titleDiv);
@@ -302,7 +309,7 @@
                             actionButton = document.getElementById('edit-' + comment.id);
                             L.DomUtil.removeClass(actionButton, 'panelmanager-document-property-button-disabled');
                             actionButton.disabled = false;
-                            console.log('enabling ' + documentAction.name + ' for ' + comment.name);
+                            //console.log('enabling ' + documentAction.name + ' for ' + comment.name);
                         }, false);
 
                         window.addEventListener('disable-' + documentAction.name, function (e) {
@@ -310,7 +317,7 @@
                             actionButton = document.getElementById('edit-' + comment.id);
                             L.DomUtil.addClass(actionButton, 'panelmanager-document-property-button-disabled');
                             actionButton.disabled = true;
-                            console.log('disabling ' + documentAction.name + ' for ' + comment.name);
+                            //console.log('disabling ' + documentAction.name + ' for ' + comment.name);
                         }, false);
                     });
                 }

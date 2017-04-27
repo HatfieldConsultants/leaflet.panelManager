@@ -1,0 +1,40 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <title>Panel Manager</title>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.0.2/dist/leaflet.css" />
+    <link rel="stylesheet" href="styles/mapConfig.css" />
+    <link href="styles/panelManager.css" rel="stylesheet" />
+    <script src="https://unpkg.com/leaflet@1.0.2/dist/leaflet.js"></script>
+    <!-- Compiled and minified CSS -->
+</head>
+<body>
+    <div id="map"></div>
+    <script src="mapConfig.js"></script>
+    <script src="panelManager.js"></script>
+
+    <script>
+        L.PanelManager.addTo(map);
+        map.PanelManager.newPanel({
+        	position: "bottom",
+        	toggleHide: true,
+        	title: "Suh fam",
+            responsiveRules: function (map) {
+                var mapSize = map.getSize();
+                if (mapSize.x >= mapSize.y) {
+                    var rules = {
+                        position: "right",
+                    }
+                    return rules;
+                } else if (mapSize.y > mapSize.x) {
+                    var rules = {
+                        position: "bottom",
+                    }
+                    return rules;
+                }
+            },
+        }).addTo(map);
+	</script>
+</body>
+</html>
