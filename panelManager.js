@@ -81,16 +81,6 @@
                 panel.visible = true;
                 panel.originalPosition = options.position;
 
-                var titleDiv = L.DomUtil.create('div', 'panelmanager-panel-titlediv');
-                panel.appendChild(titleDiv);
-                var title = L.DomUtil.create('h2', 'panelmanager-panel-title');
-                titleDiv.insertBefore(title, titleDiv.firstChild);
-                panel.title = title;
-                panel.titleDiv = titleDiv;
-
-                if (options.title) {
-                    title.innerHTML = options.title;
-                }
 
                 var panelContent = L.DomUtil.create('div', 'panelmanager-panel-content');
                 panel.panelContent = panelContent;
@@ -101,6 +91,19 @@
                 }
 
                 if (options.toggleHide) {
+
+                    var titleDiv = L.DomUtil.create('div', 'panelmanager-panel-titlediv');
+
+                    panel.appendChild(titleDiv);
+                    var title = L.DomUtil.create('h2', 'panelmanager-panel-title');
+                    titleDiv.insertBefore(title, titleDiv.firstChild);
+                    panel.title = title;
+                    panel.titleDiv = titleDiv;
+
+                    if (options.title) {
+                        title.innerHTML = options.title;
+                    }
+
                     var close = L.DomUtil.create('a', 'close');
                     panel.insertBefore(close, panel.firstChild);
 
